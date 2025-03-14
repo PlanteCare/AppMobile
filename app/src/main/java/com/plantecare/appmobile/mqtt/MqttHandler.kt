@@ -8,14 +8,10 @@ class MqttHandler {
 
     fun connect(brokerUrl: String, clientId: String) {
         try {
-            // Configurer la couche de persistance
             val persistence = MemoryPersistence()
-            // Initialiser le client MQTT
             client = MqttClient(brokerUrl, clientId, persistence)
-            // Configurer les options de connexion
             val connectOptions = MqttConnectOptions()
             connectOptions.isCleanSession = true
-            // Se connecter au broker
             client?.connect(connectOptions)
         } catch (e: MqttException) {
             e.printStackTrace()
@@ -48,12 +44,10 @@ class MqttHandler {
             client?.subscribe(topic)
             client?.setCallback(object : MqttCallback {
                 override fun connectionLost(cause: Throwable?) {
-                    // Gérer la perte de connexion
                     println("Connexion perdue: ${cause?.message}")
                 }
 
                 override fun messageArrived(topic: String?, message: MqttMessage?) {
-                    // Conversion du message en String et envoi au handler
                     message?.let {
                         val messageContent = String(it.payload)
                         messageHandler(messageContent)
@@ -61,7 +55,6 @@ class MqttHandler {
                 }
 
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
-                    // Confirmation de livraison
                 }
             })
         } catch (e: MqttException) {
