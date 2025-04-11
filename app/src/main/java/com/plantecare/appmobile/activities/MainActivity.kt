@@ -27,6 +27,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Vérifier si l'utilisateur est déjà connecté
+        checkLoginStatus()
+
         val buttonLogin = findViewById<Button>(R.id.btnLogin)
         val editTextEmail = findViewById<EditText>(R.id.edtEmail)
         val editTextPassword = findViewById<EditText>(R.id.edtPassword)
@@ -52,6 +55,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkLoginStatus() {
+        val sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        val token = sharedPreferences.getString("token", null)
+        val roleId = sharedPreferences.getInt("roleId", 0)
+
+        if (token != null && roleId > 0) {
+            navigateBasedOnRoleId(roleId)
+        }
+    }
+
     private fun loginUser(email: String, password: String) {
         progressBar.visibility = View.VISIBLE
 
@@ -64,14 +77,17 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     if (loginResponse != null) {
-                        val sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-                        sharedPreferences.edit().putString("token", loginResponse.token).apply()
+                        // Sauvegarder les informations de connexion
+                        saveLoginInfo(loginResponse)
 
-                        Toast.makeText(this@MainActivity, "Connexion réussie", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Connexion réussie",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
-                        val intent = Intent(this@MainActivity, HomeUserActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        // Redirection basée sur le rôle
+                        navigateBasedOnRoleId(loginResponse.role)
                     }
                 } else {
                     Log.e("LoginError", "Error code: ${response.code()}")
@@ -94,5 +110,29 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
         })
+    }
+
+    private fun saveLoginInfo(loginResponse: LoginResponse) {
+        val sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("token", loginResponse.token)
+            putString("username", loginResponse.username)
+            putInt("roleId", loginResponse.role)  // Stocker le roleId en tant qu'entier
+            apply()
+        }
+    }
+
+    private fun navigateBasedOnRoleId(roleId: Int) {
+        val intent = when (roleId) {
+            2 -> Intent(this@MainActivity, HomeAdminActivity::class.java) // 2 pour admin
+            1 -> Intent(this@MainActivity, HomeUserActivity::class.java)  // 1 pour user
+            else -> {
+                // En cas de roleId non reconnu, rediriger vers l'écran utilisateur par défaut
+                Toast.makeText(this, "Rôle non reconnu, accès limité", Toast.LENGTH_SHORT).show()
+                Intent(this@MainActivity, HomeUserActivity::class.java)
+            }
+        }
+        startActivity(intent)
+        finish()  // Fermer l'écran de connexion
     }
 }

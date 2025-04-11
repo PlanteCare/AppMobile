@@ -9,14 +9,13 @@
         android:id="@+id/imageViewPlant"
         android:layout_width="57dp"
         android:layout_height="64dp"
-
         android:background="@drawable/rounded_corner"
         android:contentDescription="Image de plante"
         android:src="@drawable/icon_plante" />
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="58dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_weight="1"
         android:orientation="vertical">
@@ -24,16 +23,25 @@
         <TextView
             android:id="@+id/textViewPlantName"
             android:layout_width="match_parent"
-            android:layout_height="34dp"
+            android:layout_height="wrap_content"
             android:text="Nom de la plante"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/textViewMacAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mac adresse"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <TextView
             android:id="@+id/textViewPlantStatus"
             android:layout_width="98dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:background="@drawable/rounded_status"
             android:text="Statut: Actif"
             android:textAlignment="center"

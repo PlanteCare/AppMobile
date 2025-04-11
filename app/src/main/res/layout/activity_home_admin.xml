@@ -29,8 +29,6 @@
             android:background="@drawable/rounded_corner"
             android:text="Déconnexion" />
     </LinearLayout>
-
-    <!-- Titre section -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,9 +37,8 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"/>
 
-    <!-- Liste des pots + loader -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -60,17 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
-    </FrameLayout>
 
-    <!-- Bouton ajout pot -->
-    <Button
-        android:id="@+id/buttonAddPlantPot"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ajouter un pot"
-        android:background="@drawable/rounded_corner"
-        android:backgroundTint="@color/plant_green"
-        android:textColor="@color/withe"
-        android:layout_marginTop="16dp" />
+    </FrameLayout>
 
 </LinearLayout>
