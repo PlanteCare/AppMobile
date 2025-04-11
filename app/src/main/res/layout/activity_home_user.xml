@@ -6,43 +6,41 @@
     android:padding="16dp">
 
     <TextView
+        android:id="@+id/textViewUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Utilisateur connecté avec succès!!!"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:text="Bonjour, Utilisateur"
+        android:textSize="16sp"
+        android:fontFamily="@font/pacifico"
+        android:textColor="@color/plant_green"
+        android:layout_marginBottom="8dp"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Messages reçus du serveur MQTT"
+        android:text="Mes pots de plantes"
+        android:fontFamily="@font/pacifico"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp"/>
 
-    <ScrollView
+    <ListView
+        android:id="@+id/listViewPlantPots"
         android:layout_width="match_parent"
-        android:layout_height="336dp"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#F5F5F5">
-
-        <TextView
-            android:id="@+id/textViewMessages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Les messages apparaîtront ici..."
-            android:padding="8dp" />
-    </ScrollView>
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
 
     <Button
-        android:id="@+id/buttonClearMessages"
+        android:id="@+id/buttonAddPlantPot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Ajouter un pot"
         android:background="@drawable/rounded_corner"
         android:backgroundTint="@color/plant_green"
         android:textColor="@color/withe"
-        android:text="Effacer les messages"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>

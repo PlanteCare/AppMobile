@@ -4,6 +4,8 @@
     <color name="black">#000000</color>
     <color name="plant_green">#7CAC5C</color>
     <color name="background">#F9FAFB</color>
+    <color name="status_ok">#E8F5E9</color>
+    <color name="status_ok_border">#4CAF50</color>
     <color name="button_background">#EFEFEF</color>
     <color name="icon_color">#9CA3AF</color>
     <color name="icon_color_secondary">#4B5563</color>

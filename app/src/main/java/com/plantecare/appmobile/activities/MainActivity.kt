@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
                         Toast.makeText(this@MainActivity, "Connexion réussie", Toast.LENGTH_SHORT).show()
 
-                        val intent = Intent(this@MainActivity, HomeActivity::class.java)
+                        val intent = Intent(this@MainActivity, HomeUserActivity::class.java)
                         startActivity(intent)
                         finish()
                     }
