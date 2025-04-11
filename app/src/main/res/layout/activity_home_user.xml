@@ -3,14 +3,16 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/user_bg_overlay"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_height="70dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_corner"
         android:gravity="center_vertical"
-        android:layout_marginBottom="16dp">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/textViewUsername"
@@ -19,15 +21,19 @@
             android:layout_weight="1"
             android:fontFamily="@font/pacifico"
             android:text="Bonjour, Utilisateur"
+            android:layout_marginLeft="8dp"
             android:textColor="@color/plant_green"
             android:textSize="16sp" />
 
         <Button
             android:id="@+id/buttonLogout"
-            android:layout_width="113dp"
-            android:layout_height="62dp"
+            android:layout_width="106dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/rounded_corner"
-            android:text="Déconnexion" />
+            android:backgroundTint="@color/plant_green"
+            android:text="Déconnexion"
+            android:layout_marginRight="8dp"
+            android:textColor="@color/withe" />
     </LinearLayout>
 
     <!-- Titre section -->
@@ -39,7 +45,32 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
+
+    <!-- Liste déroulante pour filtrer -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filtrer par:"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginRight="8dp" />
+
+        <Spinner
+            android:id="@+id/spinnerFilter"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_corner"
+            android:popupBackground="@android:color/white"
+            android:spinnerMode="dropdown" />
+    </LinearLayout>
 
     <!-- Liste des pots + loader -->
     <FrameLayout
@@ -51,6 +82,7 @@
             android:id="@+id/listViewPlantPots"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/rounded_corner"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp" />
 

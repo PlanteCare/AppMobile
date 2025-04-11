@@ -4,16 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ListView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.plantecare.appmobile.R
 import com.plantecare.appmobile.adapters.PotAdapter
 import com.plantecare.appmobile.models.PotResponse
-import com.plantecare.appmobile.mqtt.MqttHandler
 import com.plantecare.appmobile.api.ApiService
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,8 +20,10 @@ class HomeUserActivity : AppCompatActivity() {
     private lateinit var listViewPots: ListView
     private lateinit var progressBar: ProgressBar
     private lateinit var buttonAddPot: Button
+    private lateinit var spinnerFilter: Spinner
     private lateinit var potAdapter: PotAdapter
     private var potsList: MutableList<PotResponse> = mutableListOf()
+    private var allPotsList: MutableList<PotResponse> = mutableListOf() // Liste complète pour le filtrage
 
     // Pour la gestion des API
     private val apiService: ApiService by lazy {
@@ -43,6 +40,9 @@ class HomeUserActivity : AppCompatActivity() {
         // Initialisation des données utilisateur
         setupUserInfo()
 
+        // Configuration du filtre
+        setupFilter()
+
         // Chargement des pots de l'utilisateur
         loadUserPots()
 
@@ -54,6 +54,7 @@ class HomeUserActivity : AppCompatActivity() {
         listViewPots = findViewById(R.id.listViewPlantPots)
         progressBar = findViewById(R.id.progressBarPots)
         buttonAddPot = findViewById(R.id.buttonAddPlantPot)
+        spinnerFilter = findViewById(R.id.spinnerFilter)
 
         // Initialisation de l'adaptateur avec une liste vide
         potAdapter = PotAdapter(this, potsList) { selectedPot ->
@@ -70,6 +71,48 @@ class HomeUserActivity : AppCompatActivity() {
         welcomeTextView.text = "Bienvenue, $username!"
     }
 
+    private fun setupFilter() {
+        // Options de filtrage
+        val filterOptions = arrayOf("Tous les pots", "Filtrer par nom", "Filtrer par adresse MAC")
+
+        // Créer l'adaptateur pour le spinner
+        val filterAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, filterOptions)
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerFilter.adapter = filterAdapter
+
+        // Écouter les changements de sélection
+        spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> showAllPots() // Tous les pots
+                    1 -> sortByName() // Tri par nom
+                    2 -> sortByMacAddress() // Tri par adresse MAC
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                showAllPots() // Montrer tous les pots par défaut
+            }
+        }
+    }
+
+    private fun showAllPots() {
+        potsList.clear()
+        potsList.addAll(allPotsList)
+        potAdapter.notifyDataSetChanged()
+    }
+
+    private fun sortByName() {
+        potsList.clear()
+        potsList.addAll(allPotsList.sortedBy { it.name })
+        potAdapter.notifyDataSetChanged()
+    }
+
+    private fun sortByMacAddress() {
+        potsList.clear()
+        potsList.addAll(allPotsList.sortedBy { it.macAddress })
+        potAdapter.notifyDataSetChanged()
+    }
 
     private fun loadUserPots() {
         // Afficher le loader
@@ -93,9 +136,18 @@ class HomeUserActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val pots = response.body()
                     if (pots != null) {
-                        potsList.clear()
-                        potsList.addAll(pots)
-                        potAdapter.notifyDataSetChanged()
+                        // Stocker dans les deux listes
+                        allPotsList.clear()
+                        allPotsList.addAll(pots)
+
+                        // Appliquer le filtre actuel
+                        val currentPosition = spinnerFilter.selectedItemPosition
+                        when (currentPosition) {
+                            0 -> showAllPots()
+                            1 -> sortByName()
+                            2 -> sortByMacAddress()
+                            else -> showAllPots()
+                        }
 
                         // Si aucun pot n'est trouvé
                         if (pots.isEmpty()) {
@@ -125,7 +177,6 @@ class HomeUserActivity : AppCompatActivity() {
         })
     }
 
-
     private fun logout() {
         // Suppression des infos stockées
         val sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE)
@@ -138,16 +189,20 @@ class HomeUserActivity : AppCompatActivity() {
         finish()
     }
 
-
     private fun setupEvents() {
         val logoutButton = findViewById<View>(R.id.buttonLogout)
         logoutButton.setOnClickListener {
             logout()
         }
+
+        buttonAddPot.setOnClickListener {
+            // Ajouter votre code pour l'ajout d'un pot ici
+            Toast.makeText(this, "Fonctionnalité d'ajout de pot à implémenter", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun onPotSelected(pot: PotResponse) {
-        // Affichage simple toats
+        // Affichage simple toast
         Toast.makeText(
             this,
             "Pot sélectionné: ${pot.name}",

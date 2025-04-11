@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Votre image de fond actuelle -->
+    <item android:drawable="@drawable/admin_bg" />
+
+    <!-- Superposition blanche semi-transparente -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#AAFFFFFF" /> <!-- AA représente environ 66% d'opacité -->
+        </shape>
+    </item>
+</layer-list>
