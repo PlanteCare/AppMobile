@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color  name="withe">#FFFFFF</color>
+    <color name="withe">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="plant_green">#7CAC5C</color>
     <color name="background">#F9FAFB</color>
+
+    <!-- Statuts OK -->
     <color name="status_ok">#E8F5E9</color>
     <color name="status_ok_border">#4CAF50</color>
+
+    <!-- Statuts d'erreur -->
+    <color name="status_error">#FFEBEE</color>
+    <color name="status_error_border">#F44336</color>
+
+    <color name="status_offline">#ECEFF1</color>
+    <color name="status_offline_border">#607D8B</color>
+
+    <!-- Couleurs d'interface -->
     <color name="button_background">#EFEFEF</color>
     <color name="icon_color">#9CA3AF</color>
     <color name="icon_color_secondary">#4B5563</color>
