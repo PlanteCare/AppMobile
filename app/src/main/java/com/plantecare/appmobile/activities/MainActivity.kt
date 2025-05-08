@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Vérifier si l'utilisateur est déjà connecté
         checkLoginStatus()
 
         val buttonLogin = findViewById<Button>(R.id.btnLogin)

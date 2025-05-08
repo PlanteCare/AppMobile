@@ -14,6 +14,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import com.plantecare.appmobile.api.RetrofitClient
+import com.plantecare.appmobile.mqtt.MqttHandler
 
 class HomeUserActivity : AppCompatActivity() {
 
@@ -24,8 +25,8 @@ class HomeUserActivity : AppCompatActivity() {
     private lateinit var potAdapter: PotAdapter
     private var potsList: MutableList<PotResponse> = mutableListOf()
     private var allPotsList: MutableList<PotResponse> = mutableListOf() // Liste complète pour le filtrage
+    private lateinit var mqttHandler: MqttHandler
 
-    // Pour la gestion des API
     private val apiService: ApiService by lazy {
         RetrofitClient.apiService
     }
@@ -33,21 +34,55 @@ class HomeUserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_user)
-
-        // Initialisation des vues
         initViews()
-
-        // Initialisation des données utilisateur
         setupUserInfo()
-
-        // Configuration du filtre
         setupFilter()
-
-        // Chargement des pots de l'utilisateur
+        initMqtt()
         loadUserPots()
-
-        // Configuration des événements
         setupEvents()
+    }
+
+    private fun initMqtt() {
+        mqttHandler = MqttHandler(this)
+
+        // Configurer le callback qui sera appelé quand un message de statut sera reçu
+        mqttHandler.setConnectionCallback { success, errorMessage ->
+            if (success) {
+                // S'abonner au topic de statut une fois connecté
+                mqttHandler.subscribe("plantecare/status") { messageContent ->
+                    // Ce callback sera appelé quand un message arrive sur le topic
+                    Log.d("HomeUserActivity", "Message MQTT reçu: $messageContent")
+                }
+            } else {
+                Log.e("HomeUserActivity", "Échec de connexion MQTT: $errorMessage")
+                runOnUiThread {
+                    Toast.makeText(this, "Erreur de connexion au serveur MQTT", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // Configurer le callback pour mettre à jour le statut des pots
+        mqttHandler.onStatusUpdateCallback = { macAddress, isOk ->
+            runOnUiThread {
+                // Trouver le pot dans la liste
+                val index = potsList.indexOfFirst { it.macAddress == macAddress }
+                if (index != -1) {
+                    // Mettre à jour le statut du pot
+                    potsList[index].status = if (isOk) "ok" else "error"
+
+                    // Notifier l'adaptateur du changement
+                    potAdapter.notifyDataSetChanged()
+
+                    Log.d("HomeUserActivity", "Statut du pot $macAddress mis à jour: ${potsList[index].status}")
+                }
+            }
+        }
+
+        // Se connecter au broker MQTT
+        // Remplacer ces valeurs par vos paramètres réels
+        val brokerUrl = "ssl://lyeshamrani.com:8883" // À remplacer par votre URL de broker
+        val clientId = "PlanteApp_${System.currentTimeMillis()}"
+        mqttHandler.connect(brokerUrl, clientId)
     }
 
     private fun initViews() {
@@ -178,6 +213,9 @@ class HomeUserActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        // Déconnexion MQTT
+        mqttHandler.disconnect()
+
         // Suppression des infos stockées
         val sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE)
         sharedPreferences.edit().clear().apply()
@@ -213,5 +251,11 @@ class HomeUserActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadUserPots()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // S'assurer de déconnecter le client MQTT
+        mqttHandler.disconnect()
     }
 }

@@ -6,5 +6,6 @@ data class PotResponse(
     val macAddress: String,
     val name: String,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
+    var status: String? = "unknown"
 )

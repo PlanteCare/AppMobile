@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp">
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@drawable/rounded_corner">
 
     <ImageView
         android:id="@+id/imageViewPlant"
-        android:layout_width="57dp"
-        android:layout_height="64dp"
-        android:background="@drawable/rounded_corner"
-        android:contentDescription="Image de plante"
-        android:src="@drawable/icon_plante" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/icon_plante"
+        android:contentDescription="Image du pot de plante" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginStart="16dp">
 
         <TextView
             android:id="@+id/textViewPlantName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nom de la plante"
-            android:textColor="@color/black"
+            android:text="Nom du pot"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -33,19 +32,24 @@
             android:id="@+id/textViewMacAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mac adresse"
-            android:textColor="@color/black"
-            android:textSize="12sp" />
+            android:text="Adresse MAC"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/status_indicator"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/rounded_corner">
 
         <TextView
-            android:id="@+id/textViewPlantStatus"
-            android:layout_width="98dp"
+            android:id="@+id/textViewStatus"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/rounded_status_ok"
-            android:text="Statut: ok"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="14sp" />
+            android:text="Inconnu"
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

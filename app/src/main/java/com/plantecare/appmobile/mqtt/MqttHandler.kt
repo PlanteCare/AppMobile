@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import org.json.JSONObject
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
@@ -14,6 +15,7 @@ class MqttHandler(private val context: Context? = null) {
     private var client: MqttClient? = null
     private val TAG = "MqttHandler"
     private var connectionCallback: ((Boolean, String?) -> Unit)? = null
+    var onStatusUpdateCallback: ((mac: String, isOk: Boolean) -> Unit)? = null
 
     fun setConnectionCallback(callback: (success: Boolean, errorMessage: String?) -> Unit) {
         this.connectionCallback = callback
@@ -28,8 +30,7 @@ class MqttHandler(private val context: Context? = null) {
             val connectOptions = MqttConnectOptions()
             connectOptions.isCleanSession = true
 
-            // Configuration SSL/TLS avec un TrustManager qui accepte tous les certificats
-            // ATTENTION: Cette configuration n'est pas sécurisée et ne devrait être utilisée que pour des tests
+
             if (brokerUrl.startsWith("ssl://") || brokerUrl.startsWith("mqtts://")) {
                 Log.d(TAG, "Configuration SSL permissive pour connexion sécurisée")
                 try {
@@ -55,23 +56,7 @@ class MqttHandler(private val context: Context? = null) {
             connectOptions.keepAliveInterval = 60
 
             // Définir le callback avant la connexion
-            client?.setCallback(object : MqttCallback {
-                override fun connectionLost(cause: Throwable?) {
-                    Log.e(TAG, "Connexion perdue", cause)
-                    connectionCallback?.invoke(false, "Connexion perdue: ${cause?.message}")
-                }
-
-                override fun messageArrived(topic: String?, message: MqttMessage?) {
-                    message?.let {
-                        val messageContent = String(it.payload)
-                        Log.d(TAG, "Message reçu sur $topic: $messageContent")
-                    }
-                }
-
-                override fun deliveryComplete(token: IMqttDeliveryToken?) {
-                    // Rien à faire ici
-                }
-            })
+            client?.setCallback(createMqttCallback())
 
             // Connexion synchrone
             client?.connect(connectOptions)
@@ -125,11 +110,9 @@ class MqttHandler(private val context: Context? = null) {
             client?.subscribe(topic, 1) // QoS 1 pour garantir la livraison
             Log.d(TAG, "Abonnement réussi à $topic")
 
-            // Mise à jour du callback pour traiter les messages
             client?.setCallback(object : MqttCallback {
                 override fun connectionLost(cause: Throwable?) {
                     Log.e(TAG, "Connexion perdue", cause)
-                    // Tentative de reconnexion
                     try {
                         client?.reconnect()
                         Log.d(TAG, "Tentative de reconnexion")
@@ -142,16 +125,68 @@ class MqttHandler(private val context: Context? = null) {
                     message?.let {
                         val messageContent = String(it.payload)
                         Log.d(TAG, "Message reçu sur $topic: $messageContent")
-                        messageHandler(messageContent)
+
+                        if (topic == "plantecare/status") {
+                            processStatusMessage(messageContent)
+                        } else {
+                            messageHandler(messageContent)
+                        }
                     }
                 }
 
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
-                    // Rien à faire ici
                 }
             })
         } catch (e: MqttException) {
             Log.e(TAG, "Erreur lors de l'abonnement à $topic", e)
+        }
+    }
+
+    private fun createMqttCallback(): MqttCallback {
+        return object : MqttCallback {
+            override fun connectionLost(cause: Throwable?) {
+                Log.e(TAG, "Connexion perdue", cause)
+                connectionCallback?.invoke(false, "Connexion perdue: ${cause?.message}")
+                try {
+                    client?.reconnect()
+                    Log.d(TAG, "Tentative de reconnexion")
+                } catch (e: MqttException) {
+                    Log.e(TAG, "Erreur lors de la tentative de reconnexion", e)
+                }
+            }
+
+            override fun messageArrived(topic: String?, message: MqttMessage?) {
+                message?.let {
+                    val messageContent = String(it.payload)
+                    Log.d(TAG, "Message reçu sur $topic: $messageContent")
+
+                    if (topic == "plantecare/status") {
+                        processStatusMessage(messageContent)
+                    }
+                }
+            }
+
+            override fun deliveryComplete(token: IMqttDeliveryToken?) {
+            }
+        }
+    }
+
+    private fun processStatusMessage(payload: String) {
+        try {
+            val json = JSONObject(payload)
+
+            for (key in json.keys()) {
+                val statusObject = json.getJSONObject(key)
+                val esp = statusObject.getInt("esp")
+                val water = statusObject.getInt("water_sensor")
+                val moisture = statusObject.getInt("moisture_sensor")
+
+                val isOk = (esp == 1 && water == 1 && moisture == 1)
+
+                onStatusUpdateCallback?.invoke(key, isOk)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Erreur parsing JSON", e)
         }
     }
 }
